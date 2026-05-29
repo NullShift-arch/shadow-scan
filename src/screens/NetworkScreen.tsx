@@ -60,7 +60,12 @@ export function NetworkScreen() {
                   <p className="text-tf-text/65 mb-2 leading-snug">{c.plain_language}</p>
                 )}
 
-                {/* Row 3: technical details */}
+                {/* Row 3: hostname (if resolved) + technical details */}
+                {c.remote_hostname && (
+                  <div className="font-mono text-tf-text/55 text-[11px] mb-0.5">
+                    {c.remote_hostname}
+                  </div>
+                )}
                 <div className="font-mono text-tf-text/50">
                   {c.local_addr}:{c.local_port} → {c.remote_addr}:{c.remote_port}
                 </div>

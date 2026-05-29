@@ -1,5 +1,6 @@
 import { useUIStore } from './store/uiStore';
 import { useConnectionMonitor } from './hooks/useConnectionMonitor';
+import { useDnsEnrichment } from './hooks/useDnsEnrichment';
 import { Sidebar } from './components/Sidebar';
 import { NetworkScreen } from './screens/NetworkScreen';
 import { AppleRelayScreen } from './screens/AppleRelayScreen';
@@ -8,6 +9,7 @@ import { SettingsScreen } from './screens/SettingsScreen';
 
 export default function App() {
   useConnectionMonitor(); // starts background Rust monitor on app launch
+  useDnsEnrichment();    // resolves IPs to hostnames in background batches
   const screen = useUIStore((s) => s.currentScreen);
 
   return (

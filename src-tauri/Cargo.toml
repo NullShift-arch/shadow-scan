@@ -31,6 +31,7 @@ anyhow = "1"
 thiserror = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+hickory-resolver = { version = "0.24", features = ["tokio-runtime"] }
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.56", features = [
