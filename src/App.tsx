@@ -1,35 +1,49 @@
 import { useSystemInfo } from './hooks/useSystemInfo';
-import { useDbTest } from './hooks/useDbTest';
 
 export default function App() {
-  const { info, error: sysError } = useSystemInfo();
-  const { test, result, error: dbError } = useDbTest();
+  const { info, error } = useSystemInfo();
 
   return (
-    <div className="p-8 font-mono min-h-screen bg-tf-bg text-tf-text">
-      <h1 className="text-tf-teal text-2xl tracking-widest mb-6">SHADOW SCAN</h1>
+    <div className="min-h-screen bg-tf-bg text-tf-text p-8 font-mono">
+      <div className="mb-8">
+        <h1 className="text-tf-teal text-xl tracking-[0.2em] font-medium mb-1">
+          SHADOW SCAN
+        </h1>
+        <p className="text-tf-text/40 text-xs tracking-widest">
+          TENFOLD INDUSTRIES · DAY A3
+        </p>
+      </div>
 
-      {sysError && <p className="text-tf-red">{sysError}</p>}
-      {info ? (
-        <div className="text-xs space-y-1 mb-6">
-          <div>OS: {info.os_name} {info.os_version}</div>
-          <div>Host: {info.host_name}</div>
-          <div>CPU: {info.cpu_count} cores</div>
-          <div>RAM: {info.total_memory_gb.toFixed(1)} GB</div>
-          <div>Uptime: {Math.floor(info.uptime_seconds / 3600)}h</div>
+      {error && (
+        <div className="text-tf-red text-sm border border-tf-red/30 bg-tf-red/5 rounded p-3 mb-4">
+          IPC ERROR: {error}
         </div>
-      ) : (
-        <p className="text-tf-text/50">Loading…</p>
       )}
 
-      <button
-        onClick={() => test()}
-        className="px-3 py-2 bg-tf-teal/20 border border-tf-teal text-tf-teal text-sm rounded hover:bg-tf-teal/30 transition"
-      >
-        Test DB Write
-      </button>
-      {dbError && <p className="text-tf-red mt-2">{dbError}</p>}
-      {result && <p className="text-tf-teal mt-2">{result}</p>}
+      {info ? (
+        <div className="border border-white/8 rounded-lg bg-white/[0.02] p-6 max-w-md">
+          <p className="text-xs text-tf-text/40 tracking-widest mb-4">SYSTEM PROBE — RUST → FRONTEND</p>
+          {[
+            ['OS', `${info.os_name} ${info.os_version}`],
+            ['HOST', info.host_name],
+            ['CPU', `${info.cpu_count} cores`],
+            ['RAM', `${info.total_memory_gb.toFixed(1)} GB`],
+            ['UPTIME', `${Math.floor(info.uptime_seconds / 3600)}h ${Math.floor((info.uptime_seconds % 3600) / 60)}m`],
+          ].map(([label, value]) => (
+            <div key={label} className="flex justify-between py-2 border-b border-white/5 last:border-0">
+              <span className="text-tf-text/40 text-xs">{label}</span>
+              <span className="text-tf-teal text-xs">{value}</span>
+            </div>
+          ))}
+          <div className="mt-4 pt-3 border-t border-white/8">
+            <p className="text-tf-teal/60 text-xs">✓ IPC BRIDGE OPERATIONAL · DB INITIALIZED</p>
+          </div>
+        </div>
+      ) : (
+        <div className="text-tf-text/30 text-xs animate-pulse">
+          QUERYING RUST BACKEND...
+        </div>
+      )}
     </div>
   );
 }
