@@ -2,6 +2,21 @@ use crate::error::AppError;
 use serde::Serialize;
 use sysinfo::System;
 
+#[tauri::command]
+pub async fn test_db_write() -> Result<i64, AppError> {
+    let pool = crate::db::schema::get_pool();
+    let now = chrono::Utc::now().timestamp_millis();
+    let result = sqlx::query(
+        "INSERT INTO audit_results (ts, score, findings) VALUES (?, ?, ?)",
+    )
+    .bind(now)
+    .bind(85_i64)
+    .bind(r#"{"test": true}"#)
+    .execute(pool)
+    .await?;
+    Ok(result.last_insert_rowid())
+}
+
 #[derive(Serialize)]
 pub struct SystemInfo {
     pub os_name: String,
