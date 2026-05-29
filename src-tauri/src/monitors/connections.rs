@@ -34,6 +34,16 @@ pub fn enumerate_tcp_connections() -> anyhow::Result<Vec<Connection>> {
 
 // ─── Windows implementation ──────────────────────────────────────────────────
 
+// One System lives for the app's lifetime. refresh_processes() (~1-5 ms) is
+// called each poll instead of System::new_all() (~50-100 ms).
+#[cfg(windows)]
+static SYSTEM: std::sync::OnceLock<std::sync::Mutex<sysinfo::System>> = std::sync::OnceLock::new();
+
+#[cfg(windows)]
+fn get_system() -> &'static std::sync::Mutex<sysinfo::System> {
+    SYSTEM.get_or_init(|| std::sync::Mutex::new(sysinfo::System::new_all()))
+}
+
 #[cfg(windows)]
 fn enumerate_windows() -> anyhow::Result<Vec<Connection>> {
     use windows::Win32::Foundation::BOOL;
@@ -41,10 +51,17 @@ fn enumerate_windows() -> anyhow::Result<Vec<Connection>> {
         GetExtendedTcpTable, MIB_TCPROW_OWNER_PID, MIB_TCPTABLE_OWNER_PID, TCP_TABLE_OWNER_PID_ALL,
     };
 
+    // ── refresh process names ────────────────────────────────────────────────
+    let sys_lock = get_system();
+    let mut sys = sys_lock
+        .lock()
+        .expect("System mutex poisoned — a previous poll panicked");
+    sys.refresh_processes();
+
+    // ── enumerate TCP table ──────────────────────────────────────────────────
     let mut buf_len: u32 = 0;
 
-    // First call: ask for the required buffer size (returns ERROR_INSUFFICIENT_BUFFER).
-    // windows 0.56 takes Option<*mut c_void>: None = null pointer.
+    // First call: windows 0.56 takes Option<*mut c_void>; None = null (size probe).
     unsafe {
         GetExtendedTcpTable(
             None,
@@ -77,18 +94,12 @@ fn enumerate_windows() -> anyhow::Result<Vec<Connection>> {
         anyhow::bail!("GetExtendedTcpTable failed with code {}", ret);
     }
 
-    // SAFETY: buf is large enough (sized by the first call) and correctly
-    // aligned for MIB_TCPTABLE_OWNER_PID on this platform.
+    // SAFETY: buf is sized by the first call and correctly aligned for
+    // MIB_TCPTABLE_OWNER_PID. table.table is a flexible C array; we access
+    // elements 0..num_entries which all fall within the allocation.
     let table = unsafe { &*(buf.as_ptr() as *const MIB_TCPTABLE_OWNER_PID) };
     let num_entries = table.dwNumEntries as usize;
-
-    // SAFETY: table.table is a flexible C array; we access elements 0..num_entries
-    // which all fall within the buf allocation.
     let row_ptr = &table.table[0] as *const MIB_TCPROW_OWNER_PID;
-
-    // Build a process-name map. new_all() refreshes CPU/memory/processes — heavier
-    // than needed but correct; we'll optimise in B2 with a cached System.
-    let sys = sysinfo::System::new_all();
 
     let now = chrono::Utc::now().timestamp_millis();
     let mut connections = Vec::with_capacity(num_entries);
@@ -128,16 +139,12 @@ fn enumerate_windows() -> anyhow::Result<Vec<Connection>> {
     Ok(connections)
 }
 
-// dwLocalAddr / dwRemoteAddr: stored in network byte order (big-endian).
-// to_le_bytes() on a LE system gives the octets in the correct display order.
 #[cfg(windows)]
 fn ip_from_u32(addr: u32) -> String {
     let b = addr.to_le_bytes();
     format!("{}.{}.{}.{}", b[0], b[1], b[2], b[3])
 }
 
-// dwLocalPort / dwRemotePort: lower 16 bits in network byte order.
-// u16::from_be() swaps to host order on LE systems.
 #[cfg(windows)]
 fn port_from_u32(port: u32) -> u16 {
     u16::from_be(port as u16)

@@ -1,4 +1,5 @@
 import { useUIStore } from './store/uiStore';
+import { useConnectionMonitor } from './hooks/useConnectionMonitor';
 import { Sidebar } from './components/Sidebar';
 import { NetworkScreen } from './screens/NetworkScreen';
 import { AppleRelayScreen } from './screens/AppleRelayScreen';
@@ -6,6 +7,7 @@ import { AuditScreen } from './screens/AuditScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 
 export default function App() {
+  useConnectionMonitor(); // starts background Rust monitor on app launch
   const screen = useUIStore((s) => s.currentScreen);
 
   return (
