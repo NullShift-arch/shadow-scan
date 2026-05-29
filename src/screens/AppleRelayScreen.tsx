@@ -1,0 +1,8 @@
+export function AppleRelayScreen() {
+  return (
+    <div className="p-6">
+      <h2 className="text-xl font-medium mb-4">Apple Relay</h2>
+      <p className="text-tf-text/50">Coming soon…</p>
+    </div>
+  );
+}
