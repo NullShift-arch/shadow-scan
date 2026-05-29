@@ -19,6 +19,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             shadow_scan_lib::commands::system::get_system_info,
+            shadow_scan_lib::commands::network::get_connections,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
