@@ -35,6 +35,27 @@ pub fn load() -> &'static Vec<IntelEntry> {
 }
 
 /// Classify a connection by hostname (if known) then by remote IP.
+/// Second-pass classifier used after DNS resolution.
+/// Prioritises domain-pattern matching across all entries before falling back
+/// to the combined domain+IP scan in `classify()`.
+pub fn classify_with_hostname(
+    hostname: Option<&str>,
+    remote_ip: &str,
+) -> Option<&'static IntelEntry> {
+    if let Some(host) = hostname {
+        let entries = load();
+        for entry in entries {
+            for pat in &entry.domain_patterns {
+                if pattern_match(pat, host) {
+                    return Some(entry);
+                }
+            }
+        }
+    }
+    // No domain match (or no hostname) — fall back to IP-range matching.
+    classify(hostname, remote_ip)
+}
+
 /// Returns the first matching entry, or None for unknown endpoints.
 pub fn classify(hostname: Option<&str>, remote_ip: &str) -> Option<&'static IntelEntry> {
     let entries = load();

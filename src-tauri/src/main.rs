@@ -23,6 +23,8 @@ fn main() {
             shadow_scan_lib::commands::network::start_connection_monitor,
             shadow_scan_lib::commands::network::resolve_hostname,
             shadow_scan_lib::commands::network::start_dns_enrichment,
+            shadow_scan_lib::commands::network::re_classify_connection,
+            shadow_scan_lib::commands::network::archive_connection,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
