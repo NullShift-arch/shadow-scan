@@ -117,22 +117,26 @@ fn enumerate_windows() -> anyhow::Result<Vec<Connection>> {
             })
             .unwrap_or_else(|| (format!("pid:{pid}"), None));
 
+        // Classify by remote IP (hostname-based classification added in B4).
+        let remote_addr = ip_from_u32(row.dwRemoteAddr);
+        let intel = crate::intel::endpoints::classify(None, &remote_addr);
+
         connections.push(Connection {
             pid,
             process_name,
             process_path,
             local_addr: ip_from_u32(row.dwLocalAddr),
             local_port: port_from_u32(row.dwLocalPort),
-            remote_addr: ip_from_u32(row.dwRemoteAddr),
+            remote_addr,
             remote_port: port_from_u32(row.dwRemotePort),
             state: state_from_u32(row.dwState),
             protocol: "TCP".to_string(),
             first_seen_ms: now,
             last_seen_ms: now,
             remote_hostname: None,
-            category: None,
-            risk_level: None,
-            plain_language: None,
+            category: intel.map(|e| e.category.clone()),
+            risk_level: intel.map(|e| e.risk.clone()),
+            plain_language: intel.map(|e| e.plain_language.clone()),
         });
     }
 

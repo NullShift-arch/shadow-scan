@@ -1,0 +1,237 @@
+{
+  "version": "2026-05-29",
+  "entries": [
+    {
+      "id": "apple-analytics",
+      "domain_patterns": ["analytics.apple.com", "*.analytics.apple.com"],
+      "ip_ranges": [],
+      "category": "telemetry",
+      "subcategory": "apple",
+      "service_name": "Apple Analytics",
+      "operator": "Apple Inc.",
+      "risk": "medium",
+      "plain_language": "Apple is collecting device usage analytics from this machine.",
+      "block_impact": "Stops Apple analytics. iCloud and app functionality unaffected.",
+      "references": ["privacyguides.org/ios-overview"]
+    },
+    {
+      "id": "apple-apns",
+      "domain_patterns": ["gateway.push.apple.com", "*.push.apple.com"],
+      "ip_ranges": ["17.0.0.0/8"],
+      "category": "sync",
+      "subcategory": "apple",
+      "service_name": "Apple Push Notification Service",
+      "operator": "Apple Inc.",
+      "risk": "low",
+      "plain_language": "Apple's notification relay. Coordinates iPhone sync with this computer.",
+      "block_impact": "Breaks iCloud sync and iPhone pairing on this machine."
+    },
+    {
+      "id": "apple-icloud",
+      "domain_patterns": ["*.icloud.com", "*.icloud-content.com", "*.cdn-apple.com"],
+      "ip_ranges": [],
+      "category": "sync",
+      "subcategory": "apple",
+      "service_name": "iCloud",
+      "operator": "Apple Inc.",
+      "risk": "medium",
+      "plain_language": "iCloud sync and storage traffic.",
+      "block_impact": "Breaks all iCloud functionality."
+    },
+    {
+      "id": "ms-telemetry",
+      "domain_patterns": [
+        "*.telemetry.microsoft.com",
+        "vortex.data.microsoft.com",
+        "*.events.data.microsoft.com",
+        "settings-win.data.microsoft.com",
+        "watson.telemetry.microsoft.com",
+        "*.pipe.microsoft.com"
+      ],
+      "ip_ranges": [],
+      "category": "telemetry",
+      "subcategory": "microsoft",
+      "service_name": "Windows Diagnostic Data",
+      "operator": "Microsoft Corporation",
+      "risk": "medium",
+      "plain_language": "Windows is sending diagnostic and usage data to Microsoft.",
+      "block_impact": "Reduces Windows telemetry. Some error reporting features disabled."
+    },
+    {
+      "id": "ms-update",
+      "domain_patterns": [
+        "*.update.microsoft.com",
+        "*.windowsupdate.com",
+        "*.wu.microsoft.com"
+      ],
+      "ip_ranges": [],
+      "category": "update",
+      "subcategory": "microsoft",
+      "service_name": "Windows Update",
+      "operator": "Microsoft Corporation",
+      "risk": "low",
+      "plain_language": "Windows checking for or downloading system updates.",
+      "block_impact": "Disables Windows Update — not recommended."
+    },
+    {
+      "id": "google-analytics",
+      "domain_patterns": [
+        "*.google-analytics.com",
+        "*.googletagmanager.com",
+        "*.doubleclick.net",
+        "*.googlesyndication.com"
+      ],
+      "ip_ranges": [],
+      "category": "tracking",
+      "subcategory": "google",
+      "service_name": "Google Analytics / Ad Tracking",
+      "operator": "Google LLC",
+      "risk": "high",
+      "plain_language": "Google's analytics and ad tracking infrastructure. Monitors your browsing.",
+      "block_impact": "Blocks ads and tracking. Won't break legitimate functionality."
+    },
+    {
+      "id": "google-services",
+      "domain_patterns": [
+        "*.google.com",
+        "*.googleapis.com",
+        "*.gstatic.com",
+        "*.ggpht.com"
+      ],
+      "ip_ranges": ["8.8.8.8/32", "8.8.4.4/32"],
+      "category": "service",
+      "subcategory": "google",
+      "service_name": "Google Services",
+      "operator": "Google LLC",
+      "risk": "low",
+      "plain_language": "Legitimate Google services — Search, Maps, YouTube, APIs."
+    },
+    {
+      "id": "cloudflare",
+      "domain_patterns": ["*.cloudflare.com", "*.cloudflare.net"],
+      "ip_ranges": ["1.1.1.0/24", "1.0.0.0/24"],
+      "category": "infrastructure",
+      "subcategory": "cloudflare",
+      "service_name": "Cloudflare CDN / DNS",
+      "operator": "Cloudflare Inc.",
+      "risk": "low",
+      "plain_language": "Cloudflare CDN or DNS used by millions of websites."
+    },
+    {
+      "id": "facebook-tracking",
+      "domain_patterns": [
+        "*.facebook.com",
+        "*.fbcdn.net",
+        "graph.facebook.com",
+        "*.facebook.net",
+        "*.instagram.com"
+      ],
+      "ip_ranges": [],
+      "category": "tracking",
+      "subcategory": "meta",
+      "service_name": "Meta / Facebook Tracking",
+      "operator": "Meta Platforms Inc.",
+      "risk": "high",
+      "plain_language": "Meta's tracking infrastructure. Active even when Facebook isn't open.",
+      "block_impact": "Blocks Facebook and Instagram. Avoid if you use these services."
+    },
+    {
+      "id": "slack",
+      "domain_patterns": [
+        "*.slack.com",
+        "*.slack-edge.com",
+        "*.slack-msgs.com",
+        "*.slackb.com"
+      ],
+      "ip_ranges": [],
+      "category": "communication",
+      "subcategory": "slack",
+      "service_name": "Slack",
+      "operator": "Salesforce / Slack Technologies",
+      "risk": "low",
+      "plain_language": "Slack workspace messaging and file transfer."
+    },
+    {
+      "id": "discord",
+      "domain_patterns": [
+        "*.discord.com",
+        "*.discordapp.com",
+        "*.discord.gg",
+        "*.discord.media",
+        "*.discordcdn.com"
+      ],
+      "ip_ranges": [],
+      "category": "communication",
+      "subcategory": "discord",
+      "service_name": "Discord",
+      "operator": "Discord Inc.",
+      "risk": "low",
+      "plain_language": "Discord voice, video, and messaging traffic."
+    },
+    {
+      "id": "aws",
+      "domain_patterns": [
+        "*.amazonaws.com",
+        "*.aws.amazon.com",
+        "*.cloudfront.net",
+        "*.s3.amazonaws.com"
+      ],
+      "ip_ranges": [],
+      "category": "infrastructure",
+      "subcategory": "aws",
+      "service_name": "Amazon Web Services",
+      "operator": "Amazon.com Inc.",
+      "risk": "low",
+      "plain_language": "Amazon cloud infrastructure hosting many websites and services."
+    },
+    {
+      "id": "adobe-telemetry",
+      "domain_patterns": [
+        "*.adobedc.net",
+        "*.adobe.io",
+        "*.omtrdc.net",
+        "*.demdex.net"
+      ],
+      "ip_ranges": [],
+      "category": "telemetry",
+      "subcategory": "adobe",
+      "service_name": "Adobe Telemetry / Analytics",
+      "operator": "Adobe Inc.",
+      "risk": "medium",
+      "plain_language": "Adobe is collecting app usage and analytics data.",
+      "block_impact": "Stops Adobe telemetry. Creative Cloud functionality unaffected."
+    },
+    {
+      "id": "spotify",
+      "domain_patterns": [
+        "*.spotify.com",
+        "*.scdn.co",
+        "*.spotilocal.com",
+        "*.spotifycdn.com"
+      ],
+      "ip_ranges": [],
+      "category": "service",
+      "subcategory": "spotify",
+      "service_name": "Spotify",
+      "operator": "Spotify AB",
+      "risk": "low",
+      "plain_language": "Spotify music streaming and app traffic."
+    },
+    {
+      "id": "akamai",
+      "domain_patterns": [
+        "*.akamai.net",
+        "*.akamaiedge.net",
+        "*.akamaihd.net",
+        "*.edgesuite.net"
+      ],
+      "ip_ranges": [],
+      "category": "infrastructure",
+      "subcategory": "akamai",
+      "service_name": "Akamai CDN",
+      "operator": "Akamai Technologies",
+      "risk": "low",
+      "plain_language": "Akamai CDN — content delivery for major websites and software updates."
+    }
+  ]
+}
