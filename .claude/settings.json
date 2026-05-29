@@ -1,0 +1,29 @@
+{
+  "$comment": "Shadow Scan project settings. The PostToolUse hook runs an incremental compile/type check after every Edit/Write so breakage is caught and fed back to Claude immediately.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/post-edit-check.ps1"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "code-reviewer",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "powershell -NoProfile -Command \"Write-Output 'code-reviewer finished - check its verdict before committing.'\""
+          }
+        ]
+      }
+    ]
+  }
+}
