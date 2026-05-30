@@ -30,6 +30,10 @@ fn main() {
             shadow_scan_lib::commands::services::start_service_cmd,
             shadow_scan_lib::commands::services::disable_service_cmd,
             shadow_scan_lib::commands::services::enable_service_cmd,
+            shadow_scan_lib::commands::firewall::block_ip_cmd,
+            shadow_scan_lib::commands::firewall::unblock_ip_cmd,
+            shadow_scan_lib::commands::firewall::is_ip_blocked_cmd,
+            shadow_scan_lib::commands::firewall::list_blocked_ips_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
