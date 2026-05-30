@@ -27,7 +27,7 @@ export function useAudit() {
       const results = await invoke<AuditResult[]>('get_audit_history', { limit });
       setHistory(results);
     } catch {
-      // Non-critical — history is supplementary
+      // History is supplementary — fail silently
     }
   }, []);
 
@@ -45,8 +45,11 @@ export function useAudit() {
     }
   }, [fetchHistory]);
 
+  // Initial run + auto-refresh every 60 seconds.
   useEffect(() => {
     run();
+    const interval = setInterval(run, 60_000);
+    return () => clearInterval(interval);
   }, [run]);
 
   return { audit, history, run, loading, error };
