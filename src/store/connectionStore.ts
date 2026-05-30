@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useCorrelationStore } from './correlationStore';
 
 export interface Connection {
   pid: number;
@@ -18,7 +19,7 @@ export interface Connection {
   plain_language?: string;
 }
 
-interface StoredConnection extends Connection {
+export interface StoredConnection extends Connection {
   lastUpdated: number;
   stale: boolean;
 }
@@ -68,6 +69,9 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
           next.delete(k);
         }
       }
+
+      // Push active connections into correlation store for service-PID mapping.
+      useCorrelationStore.getState().updateConnections(Array.from(next.values()));
 
       return { connections: next };
     }),
