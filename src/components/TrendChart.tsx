@@ -59,11 +59,11 @@ export function TrendChart({ history }: Props) {
             padding: '6px 10px',
           }}
           labelStyle={{ color: '#e0eaf4', marginBottom: 2 }}
-          formatter={(value: number | string) => {
+          formatter={(value) => {
             const numValue = typeof value === 'number' ? value : parseInt(String(value), 10);
-            return [`${numValue}`, 'Score'];
+            return `Score: ${numValue}`;
           }}
-          labelFormatter={(label: string | number) => `Audit at ${label}`}
+          labelFormatter={(label) => `Audit at ${label}`}
         />
         <Line
           type="monotone"
