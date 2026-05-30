@@ -154,3 +154,134 @@ pub fn enumerate_services() -> anyhow::Result<Vec<Service>> {
 pub fn enumerate_services() -> anyhow::Result<Vec<Service>> {
     Ok(vec![])
 }
+
+// ─── Service control (Windows only) ─────────────────────────────────────────
+
+#[cfg(windows)]
+fn open_scm_and_service(
+    service_name: &str,
+    access: u32,
+) -> anyhow::Result<(
+    windows::Win32::Security::SC_HANDLE,
+    windows::Win32::Security::SC_HANDLE,
+)> {
+    use std::ffi::CString;
+    use windows::core::PCSTR;
+    use windows::Win32::System::Services::{OpenSCManagerA, OpenServiceA, SC_MANAGER_CONNECT};
+
+    let name = CString::new(service_name)?;
+    unsafe {
+        let scm = OpenSCManagerA(None, None, SC_MANAGER_CONNECT)
+            .map_err(|e| anyhow::anyhow!("OpenSCManagerA failed: {e}"))?;
+        let svc = OpenServiceA(scm, PCSTR(name.as_ptr() as *const u8), access).map_err(|e| {
+            let _ = windows::Win32::System::Services::CloseServiceHandle(scm);
+            anyhow::anyhow!("OpenServiceA('{}') failed: {e}", service_name)
+        })?;
+        Ok((scm, svc))
+    }
+}
+
+#[cfg(windows)]
+pub fn stop_service(service_name: &str) -> anyhow::Result<()> {
+    use windows::Win32::System::Services::{
+        CloseServiceHandle, ControlService, SERVICE_CONTROL_STOP, SERVICE_STATUS, SERVICE_STOP,
+    };
+
+    let (scm, svc) = open_scm_and_service(service_name, SERVICE_STOP)?;
+
+    let result = unsafe {
+        let mut status: SERVICE_STATUS = std::mem::zeroed();
+        ControlService(svc, SERVICE_CONTROL_STOP, &mut status)
+            .map_err(|e| anyhow::anyhow!("ControlService(stop '{}') failed: {e}", service_name))
+    };
+
+    unsafe {
+        let _ = CloseServiceHandle(svc);
+        let _ = CloseServiceHandle(scm);
+    }
+    result
+}
+
+#[cfg(windows)]
+pub fn start_service(service_name: &str) -> anyhow::Result<()> {
+    use windows::Win32::System::Services::{CloseServiceHandle, StartServiceA, SERVICE_START};
+
+    let (scm, svc) = open_scm_and_service(service_name, SERVICE_START)?;
+
+    let result = unsafe {
+        StartServiceA(svc, None)
+            .map_err(|e| anyhow::anyhow!("StartServiceA('{}') failed: {e}", service_name))
+    };
+
+    unsafe {
+        let _ = CloseServiceHandle(svc);
+        let _ = CloseServiceHandle(scm);
+    }
+    result
+}
+
+#[cfg(windows)]
+pub fn disable_service(service_name: &str) -> anyhow::Result<()> {
+    use windows::Win32::System::Services::SERVICE_DISABLED;
+    change_service_start_type(service_name, SERVICE_DISABLED)
+}
+
+#[cfg(windows)]
+pub fn enable_service(service_name: &str) -> anyhow::Result<()> {
+    use windows::Win32::System::Services::SERVICE_AUTO_START;
+    change_service_start_type(service_name, SERVICE_AUTO_START)
+}
+
+#[cfg(windows)]
+fn change_service_start_type(
+    service_name: &str,
+    start_type: windows::Win32::System::Services::SERVICE_START_TYPE,
+) -> anyhow::Result<()> {
+    use windows::core::PCSTR;
+    use windows::Win32::System::Services::{
+        ChangeServiceConfigA, CloseServiceHandle, SERVICE_CHANGE_CONFIG, SERVICE_NO_CHANGE,
+    };
+
+    let (scm, svc) = open_scm_and_service(service_name, SERVICE_CHANGE_CONFIG)?;
+
+    use windows::Win32::System::Services::{ENUM_SERVICE_TYPE, SERVICE_ERROR};
+    let result = unsafe {
+        ChangeServiceConfigA(
+            svc,
+            ENUM_SERVICE_TYPE(SERVICE_NO_CHANGE), // dwServiceType — no change
+            start_type,
+            SERVICE_ERROR(SERVICE_NO_CHANGE), // dwErrorControl — no change
+            PCSTR::null(),                    // lpBinaryPathName — no change
+            PCSTR::null(),                    // lpLoadOrderGroup — no change
+            None,                             // lpdwTagId — no change
+            PCSTR::null(),                    // lpDependencies — no change
+            PCSTR::null(),                    // lpServiceStartName — no change
+            PCSTR::null(),                    // lpPassword — no change
+            PCSTR::null(),                    // lpDisplayName — no change
+        )
+        .map_err(|e| anyhow::anyhow!("ChangeServiceConfigA('{}') failed: {e}", service_name))
+    };
+
+    unsafe {
+        let _ = CloseServiceHandle(svc);
+        let _ = CloseServiceHandle(scm);
+    }
+    result
+}
+
+#[cfg(not(windows))]
+pub fn stop_service(_: &str) -> anyhow::Result<()> {
+    Ok(())
+}
+#[cfg(not(windows))]
+pub fn start_service(_: &str) -> anyhow::Result<()> {
+    Ok(())
+}
+#[cfg(not(windows))]
+pub fn disable_service(_: &str) -> anyhow::Result<()> {
+    Ok(())
+}
+#[cfg(not(windows))]
+pub fn enable_service(_: &str) -> anyhow::Result<()> {
+    Ok(())
+}

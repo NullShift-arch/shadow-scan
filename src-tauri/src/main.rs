@@ -26,6 +26,10 @@ fn main() {
             shadow_scan_lib::commands::network::re_classify_connection,
             shadow_scan_lib::commands::network::archive_connection,
             shadow_scan_lib::commands::services::get_services,
+            shadow_scan_lib::commands::services::stop_service_cmd,
+            shadow_scan_lib::commands::services::start_service_cmd,
+            shadow_scan_lib::commands::services::disable_service_cmd,
+            shadow_scan_lib::commands::services::enable_service_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

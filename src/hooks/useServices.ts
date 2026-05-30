@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
 export interface Service {
@@ -15,22 +15,23 @@ export function useServices() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const svcs = await invoke<Service[]>('get_services');
-        setServices(svcs);
-        setError(null);
-      } catch (e) {
-        setError(String(e));
-        setServices([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetch();
+  const refetch = useCallback(async () => {
+    setLoading(true);
+    try {
+      const svcs = await invoke<Service[]>('get_services');
+      setServices(svcs);
+      setError(null);
+    } catch (e) {
+      setError(String(e));
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return { services, error, loading };
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  return { services, error, loading, refetch };
 }
