@@ -31,5 +31,5 @@ export function useConnectionMonitor() {
     return () => {
       unlistenPromise.then((unlisten) => unlisten());
     };
-  }, [pollMs, update]);
+  }, []);
 }
