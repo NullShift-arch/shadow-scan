@@ -73,7 +73,7 @@ export function RiskGauge({ score, riskLevel }: Props) {
           stroke={color}
           strokeWidth={strokeWidth}
           strokeDasharray={`${filledLength} ${circumference - filledLength}`}
-          strokeDashoffset={0}
+          strokeDashoffset={dashOffset}
           transform={`rotate(${rotation} 90 90)`}
           strokeLinecap="round"
           style={{ transition: 'all 0.6s ease-in-out' }}
