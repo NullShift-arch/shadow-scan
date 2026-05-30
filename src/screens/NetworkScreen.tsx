@@ -43,10 +43,12 @@ function PillButton({
 export function NetworkScreen() {
   const allConnections = useConnectionStore((s) => s.getList());
   const totalCount    = useConnectionStore((s) => s.count());
-  const {
-    sortBy, riskFilter, categoryFilter,
-    setSortBy, setRiskFilter, setCategoryFilter,
-  } = useViewStore();
+  const sortBy = useViewStore((s) => s.sortBy);
+  const riskFilter = useViewStore((s) => s.riskFilter);
+  const categoryFilter = useViewStore((s) => s.categoryFilter);
+  const setSortBy = useViewStore((s) => s.setSortBy);
+  const setRiskFilter = useViewStore((s) => s.setRiskFilter);
+  const setCategoryFilter = useViewStore((s) => s.setCategoryFilter);
 
   // Derive category list from live connections.
   const categories = Array.from(
