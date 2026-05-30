@@ -2,6 +2,8 @@ import { useAudit, type Finding } from '../hooks/useAudit';
 import { RiskGauge } from '../components/RiskGauge';
 import { TrendChart } from '../components/TrendChart';
 import { ActionRecommendations } from '../components/ActionRecommendations';
+import { RestorePanel } from '../components/RestorePanel';
+import { ScoreDelta } from '../components/ScoreDelta';
 
 function severityBorder(severity: string) {
   switch (severity) {
@@ -13,7 +15,7 @@ function severityBorder(severity: string) {
   }
 }
 
-function FindingRow({ f, i }: { f: Finding; i: number }) {
+function FindingRow({ f }: { f: Finding }) {
   const sign = f.impact_points > 0 ? '+' : '';
   return (
     <div className={`border rounded p-3 text-xs space-y-0.5 ${severityBorder(f.severity)}`}>
@@ -31,6 +33,8 @@ function FindingRow({ f, i }: { f: Finding; i: number }) {
 export function AuditScreen() {
   const { audit, history, loading, error, run } = useAudit();
 
+  // history[0] = current scan, history[1] = previous scan
+  const previousAudit = history.length > 1 ? history[1] : null;
   const ts = audit ? new Date(audit.timestamp_ms).toLocaleTimeString() : null;
 
   return (
@@ -64,12 +68,17 @@ export function AuditScreen() {
 
       {audit && (
         <div className="space-y-5">
-          {/* Risk gauge */}
-          <div className="border border-white/8 rounded-lg p-6 bg-white/[0.02] flex justify-center">
-            <RiskGauge score={audit.score} riskLevel={audit.risk_level} />
+          {/* Risk gauge + score delta */}
+          <div className="border border-white/8 rounded-lg p-6 bg-white/[0.02]">
+            <div className="flex flex-col items-center gap-3">
+              <RiskGauge score={audit.score} riskLevel={audit.risk_level} />
+              {previousAudit && (
+                <ScoreDelta current={audit} previous={previousAudit} />
+              )}
+            </div>
           </div>
 
-          {/* Trend chart */}
+          {/* Score trend */}
           <div className="border border-white/8 rounded-lg p-5 bg-white/[0.02]">
             <h3 className="text-[10px] font-medium text-tf-text/40 uppercase tracking-widest mb-3">
               Score Trend
@@ -80,10 +89,13 @@ export function AuditScreen() {
           {/* Top actions */}
           <div className="border border-white/8 rounded-lg p-5 bg-white/[0.02]">
             <h3 className="text-[10px] font-medium text-tf-text/40 uppercase tracking-widest mb-3">
-              Top Actions ({audit.findings.filter((f) => f.impact_points > 0).length})
+              Top Actions
             </h3>
             <ActionRecommendations findings={audit.findings} />
           </div>
+
+          {/* Restore panel */}
+          <RestorePanel />
 
           {/* All findings */}
           {audit.findings.length > 0 && (
@@ -93,7 +105,7 @@ export function AuditScreen() {
               </h3>
               <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                 {audit.findings.map((f, i) => (
-                  <FindingRow key={i} f={f} i={i} />
+                  <FindingRow key={i} f={f} />
                 ))}
               </div>
             </div>

@@ -36,6 +36,8 @@ fn main() {
             shadow_scan_lib::commands::firewall::list_blocked_ips_cmd,
             shadow_scan_lib::commands::audit::run_audit_cmd,
             shadow_scan_lib::commands::audit::get_audit_history,
+            shadow_scan_lib::commands::audit::get_kill_switch_log,
+            shadow_scan_lib::commands::audit::restore_all_kills,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
